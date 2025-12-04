@@ -16,7 +16,7 @@ export class OpenAIAssistant {
       throw new Error("OpenAI API key is required. Provide it as a parameter or set NEXT_PUBLIC_OPENAI_API_KEY in your .env file.");
     }
     
-    this.client = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
+    this.client = new OpenAI({ apiKey: key});
   }
 
   // async initialize(
@@ -69,7 +69,7 @@ async getResponse(
   // ⭐ FIX: safely handle null result
   if (!result.output_parsed) {
     return {
-      response: "Sorry, I could not process your request.",
+      response: "לא הצלחתי לעבד את הבקשה.",
       relatedquery: false,
     };
   }
