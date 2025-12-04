@@ -3,7 +3,7 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY!,
 });
 
 export async function POST(req: Request) {
@@ -31,14 +31,18 @@ export async function POST(req: Request) {
       text: { format: zodTextFormat(AnswerExtraction, "answer_extraction") },
     });
 
-    return Response.json(
+    const data =
       result.output_parsed ?? {
         response: "לא הצלחתי לעבד את הבקשה.",
         relatedquery: false,
-      }
-    );
-  } catch (err) {
-    console.error(err);
-    return new Response("Server error", { status: 500 });
+      };
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error(error);
+    return new Response("Internal Server Error", { status: 500 });
   }
 }
