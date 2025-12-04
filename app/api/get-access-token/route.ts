@@ -1,4 +1,4 @@
-const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
+const HEYGEN_API_KEY = process.env.NEXT_PUBLIC_HEYGEN_API_KEY;
 
 export async function POST() {
   try {
@@ -12,14 +12,11 @@ export async function POST() {
       headers: {
       accept: 'application/json',
       'content-type': 'application/json',
-      "x-api-key": "sk_V2_hgu_k82EGXaDiiy_QqiAqfj0sOyqhCIY7PPLq1XRTlDUNwS7"
+      "x-api-key": HEYGEN_API_KEY
       },
       body: JSON.stringify({})
     });
-
-    console.log("Response:", res);
-    console.log(HEYGEN_API_KEY);
-    // console.log(data);
+ 
     const data = await res.json();
     return new Response(data.data.token, {
       status: 200,

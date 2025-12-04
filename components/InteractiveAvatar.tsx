@@ -6,31 +6,40 @@ import {
   StartAvatarRequest,
   STTProvider,
   ElevenLabsModel,
+  TaskType,
+  TaskMode
 } from "@heygen/streaming-avatar";
 import { useEffect, useRef, useState } from "react";
 import { useMemoizedFn, useUnmount } from "ahooks";
 
-import { Button } from "./Button";
+import { Button } from "./Button"; 
 import { AvatarConfig } from "./AvatarConfig";
+import RecordButton from "@/components/RecordButton";
 import { AvatarVideo } from "./AvatarSession/AvatarVideo";
 import { useStreamingAvatarSession } from "./logic/useStreamingAvatarSession";
 import { AvatarControls } from "./AvatarSession/AvatarControls";
 import { useVoiceChat } from "./logic/useVoiceChat";
 import { StreamingAvatarProvider, StreamingAvatarSessionState } from "./logic";
+import { useStreamingAvatarContext } from "./logic/context";
 import { LoadingIcon } from "./Icons";
 import { MessageHistory } from "./AvatarSession/MessageHistory";
+import { OpenAIAssistant } from "@/app/lib/openai-assistant";
+import { AVATARS } from "@/app/lib/constants"; 
 
-import { AVATARS } from "@/app/lib/constants";
+let openaiAssistant: OpenAIAssistant | null = null;
+
 
 const DEFAULT_CONFIG: StartAvatarRequest = {
   quality: AvatarQuality.Low,
-  avatarName: AVATARS[0].avatar_id,
+  avatarName: "d888f58da09648bfb520315b93971945",
   knowledgeId: undefined,
   voice: {
     rate: 1.5,
     emotion: VoiceEmotion.EXCITED,
     model: ElevenLabsModel.eleven_flash_v2_5,
+    // model: ElevenLabsModel.eleven_v3,
   },
+  // language: "heb",
   language: "en",
   voiceChatTransport: VoiceChatTransport.WEBSOCKET,
   sttSettings: {
@@ -42,11 +51,39 @@ function InteractiveAvatar() {
   const { initAvatar, startAvatar, stopAvatar, sessionState, stream } =
     useStreamingAvatarSession();
   const { startVoiceChat } = useVoiceChat();
+  const { avatarRef } = useStreamingAvatarContext();
 
   const [config, setConfig] = useState<StartAvatarRequest>(DEFAULT_CONFIG);
+  const [isAds, setIsAds] = useState(true);
+  const mediaStream = useRef<HTMLVideoElement>(null); 
+  // const [language, setLanguage] = useState("en-US");
+  const [language, setLanguage] = useState("he-IL");
+  const appendTranscript = useMemoizedFn(async (text: string) => {
 
-  const mediaStream = useRef<HTMLVideoElement>(null);
-
+    if (
+      sessionState === StreamingAvatarSessionState.CONNECTED &&
+      avatarRef.current 
+      &&openaiAssistant
+    ) {
+      try {
+        // Get response from OpenAI Assistant
+        const response = await openaiAssistant.getResponse(text);
+        // console.log("OpenAI Response:", response);
+        
+        // Send response to avatar
+        console.log("response:", response);
+        avatarRef.current.speak({ 
+          text: response.response, 
+          task_type: TaskType.REPEAT, 
+          taskMode: TaskMode.SYNC 
+        });
+        setIsAds(response.relatedquery);
+      } catch (error) {
+        console.error("Error sending message to avatar:", error);
+      }
+    }
+  });
+  
   async function fetchAccessToken() {
     try {
       const response = await fetch("/api/get-access-token", {
@@ -63,56 +100,40 @@ function InteractiveAvatar() {
     }
   }
 
+
   const startSessionV2 = useMemoizedFn(async (isVoiceChat: boolean) => {
     try {
       const newToken = await fetchAccessToken();
       const avatar = initAvatar(newToken);
-
-      avatar.on(StreamingEvents.AVATAR_START_TALKING, (e) => {
-        console.log("Avatar started talking", e);
-      });
-      avatar.on(StreamingEvents.AVATAR_STOP_TALKING, (e) => {
-        console.log("Avatar stopped talking", e);
-      });
-      avatar.on(StreamingEvents.STREAM_DISCONNECTED, () => {
-        console.log("Stream disconnected");
-      });
-      avatar.on(StreamingEvents.STREAM_READY, (event) => {
-        console.log(">>>>> Stream ready:", event.detail);
-      });
-      avatar.on(StreamingEvents.USER_START, (event) => {
-        console.log(">>>>> User started talking:", event);
-      });
-      avatar.on(StreamingEvents.USER_STOP, (event) => {
-        console.log(">>>>> User stopped talking:", event);
-      });
-      avatar.on(StreamingEvents.USER_END_MESSAGE, (event) => {
-        console.log(">>>>> User end message:", event);
-      });
-      avatar.on(StreamingEvents.USER_TALKING_MESSAGE, (event) => {
-        console.log(">>>>> User talking message:", event);
-      });
-      avatar.on(StreamingEvents.AVATAR_TALKING_MESSAGE, (event) => {
-        console.log(">>>>> Avatar talking message:", event);
-      });
-      avatar.on(StreamingEvents.AVATAR_END_MESSAGE, (event) => {
-        console.log(">>>>> Avatar end message:", event);
-      });
-
-      console.log(config);
+      
       await startAvatar(config);
+      
+      // Initialize OpenAI Assistant (reads API key from NEXT_PUBLIC_OPENAI_API_KEY env variable)
+      openaiAssistant = new OpenAIAssistant();
+      // await openaiAssistant.initialize();
+      // const response = await openaiAssistant.getResponse("Hello");
+      // console.log(response)
+      // avatar.speak({ text: response, task_type: TaskType.REPEAT, taskMode: TaskMode.SYNC }); 
+
 
       if (isVoiceChat) {
-        await startVoiceChat();
+        await startVoiceChat(true);
       }
     } catch (error) {
       console.error("Error starting avatar session:", error);
     }
   });
-
+  // const startTest = async()=>{
+  //     console.log("HI");
+  //     openaiAssistant = new OpenAIAssistant();
+  //     // await openaiAssistant.initialize();
+  //     const response = await openaiAssistant.getResponse("מהי עיר הבירה של ישראל?");
+  //     console.log(response);
+  // }
   useUnmount(() => {
     stopAvatar();
   });
+ 
 
   useEffect(() => {
     if (stream && mediaStream.current) {
@@ -124,26 +145,35 @@ function InteractiveAvatar() {
   }, [mediaStream, stream]);
 
   return (
-    <div className="w-full flex flex-col gap-4">
-      <div className="flex flex-col rounded-xl bg-zinc-900 overflow-hidden">
+    <div className="w-full flex flex-col gap-4 ">
+      <div className="flex flex-col rounded-xl bg-zinc-900 overflow-hidden w-full">
         <div className="relative w-full aspect-video overflow-hidden flex flex-col items-center justify-center">
-          {sessionState !== StreamingAvatarSessionState.INACTIVE ? (
-            <AvatarVideo ref={mediaStream} />
-          ) : (
-            <AvatarConfig config={config} onConfigChange={setConfig} />
-          )}
+          {sessionState !== StreamingAvatarSessionState.INACTIVE && (
+            <AvatarVideo ref={mediaStream} isAds={isAds} />
+          ) 
+          // : (
+          //   <AvatarConfig config={config} onConfigChange={setConfig} />
+          // )
+          }
         </div>
-        <div className="flex flex-col gap-3 items-center justify-center p-4 border-t border-zinc-700 w-full">
+        <div className="flex flex-col gap-3 items-center justify-center p-4 border-t border-zinc-700 w-full ">
           {sessionState === StreamingAvatarSessionState.CONNECTED ? (
-            <AvatarControls />
+            <div className="flex flex-col gap-3 items-center">
+              {/* <AvatarControls /> */}
+              <RecordButton
+                language={language}
+                onTranscript={appendTranscript}
+                className="mb-4"
+              /> 
+            </div>
           ) : sessionState === StreamingAvatarSessionState.INACTIVE ? (
             <div className="flex flex-row gap-4">
               <Button onClick={() => startSessionV2(true)}>
-                Start Voice Chat
+                Start
               </Button>
-              <Button onClick={() => startSessionV2(false)}>
+              {/* <Button onClick={() => startTest()}>
                 Start Text Chat
-              </Button>
+              </Button> */}
             </div>
           ) : (
             <LoadingIcon />
