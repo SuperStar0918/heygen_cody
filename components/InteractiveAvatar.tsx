@@ -54,7 +54,7 @@ function InteractiveAvatar() {
   const { avatarRef } = useStreamingAvatarContext();
 
   const [config, setConfig] = useState<StartAvatarRequest>(DEFAULT_CONFIG);
-  const [isAds, setIsAds] = useState(true);
+  const [isAds, setIsAds] = useState(false);
   const mediaStream = useRef<HTMLVideoElement>(null); 
   // const [language, setLanguage] = useState("en-US");
   const [language, setLanguage] = useState("he-IL");
