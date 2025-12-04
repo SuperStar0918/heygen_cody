@@ -63,13 +63,19 @@ function InteractiveAvatar() {
     if (
       sessionState === StreamingAvatarSessionState.CONNECTED &&
       avatarRef.current 
-      &&openaiAssistant
+      // &&openaiAssistant
     ) {
       try {
         // Get response from OpenAI Assistant
-        const response = await openaiAssistant.getResponse(text);
+        // const response = await openaiAssistant.getResponse(text);
         // console.log("OpenAI Response:", response);
-        
+         const res = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+
+        const response = await res.json();
         // Send response to avatar
         console.log("response:", response);
         avatarRef.current.speak({ 
@@ -109,7 +115,7 @@ function InteractiveAvatar() {
       await startAvatar(config);
       
       // Initialize OpenAI Assistant (reads API key from NEXT_PUBLIC_OPENAI_API_KEY env variable)
-      openaiAssistant = new OpenAIAssistant();
+      // openaiAssistant = new OpenAIAssistant();
       // await openaiAssistant.initialize();
       // const response = await openaiAssistant.getResponse("Hello");
       // console.log(response)
