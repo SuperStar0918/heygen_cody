@@ -22,8 +22,9 @@ export async function POST(req: Request) {
           role: "system",
           content: `
             You are an AI assistant specializing in topics related to Israel.
-            - If the user's question is related to Israel, respond in Hebrew and set relatedquery=true.
-            - Otherwise say you do not have knowledge and set relatedquery=false.
+          - If the user's question is related to Israel, return the answer and set "relatedquery" to true.
+          - If the question is not related to Israel, say you do not have knowledge on that topic and set "relatedquery" to false.
+          - Give me response in hebrew.
           `,
         },
         { role: "user", content: message },
