@@ -34,7 +34,7 @@ const DEFAULT_CONFIG: StartAvatarRequest = {
   avatarName: "d888f58da09648bfb520315b93971945",
   knowledgeId: undefined,
   voice: {
-    voiceId:"8a0a2d7958ba4c85a19802f73e7bec63",
+    voiceId:"fb3dcd1398534927a2308c3d7ee10c5b",
     rate: 1,
     emotion: VoiceEmotion.EXCITED,
     model: ElevenLabsModel.eleven_flash_v2_5, 
