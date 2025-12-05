@@ -109,6 +109,7 @@ function InteractiveAvatar() {
 
   const startSessionV2 = useMemoizedFn(async (isVoiceChat: boolean) => {
     try {
+      setIsAds(false);
       const newToken = await fetchAccessToken();
       const avatar = initAvatar(newToken);
       
@@ -151,35 +152,33 @@ function InteractiveAvatar() {
   }, [mediaStream, stream]);
 
   return (
-    <div className="w-full flex flex-col gap-4 ">
-      <div className="flex flex-col rounded-xl bg-zinc-900 overflow-hidden w-full">
-        <div className="relative w-full aspect-video overflow-hidden flex flex-col items-center justify-center">
-          {sessionState !== StreamingAvatarSessionState.INACTIVE && (
-            <AvatarVideo ref={mediaStream} isAds={isAds} />
-          ) 
-          // : (
-          //   <AvatarConfig config={config} onConfigChange={setConfig} />
-          // )
-          }
-        </div>
-        <div className="flex flex-col gap-3 items-center justify-center p-4 border-t border-zinc-700 w-full ">
+    <div className="w-full h-full">
+      <div className="relative w-full h-full">
+        {/* Video */}
+        {sessionState !== StreamingAvatarSessionState.INACTIVE && (
+          <AvatarVideo ref={mediaStream} isAds={isAds} />
+        )}
+
+        {/* OVERLAY CONTROLS - Bottom Center */}
+        <div className="
+            fixed 
+            bottom-8 left-1/2 
+            -translate-x-1/2
+            flex flex-col gap-3 items-center justify-center
+            z-30
+          "
+        >
           {sessionState === StreamingAvatarSessionState.CONNECTED ? (
             <div className="flex flex-col gap-3 items-center">
-              {/* <AvatarControls /> */}
               <RecordButton
                 language={language}
                 onTranscript={appendTranscript}
-                className="mb-4"
-              /> 
+                className=""
+              />
             </div>
           ) : sessionState === StreamingAvatarSessionState.INACTIVE ? (
             <div className="flex flex-row gap-4">
-              <Button onClick={() => startSessionV2(true)}>
-                Start
-              </Button>
-              {/* <Button onClick={() => startTest()}>
-                Start Text Chat
-              </Button> */}
+              <Button onClick={() => startSessionV2(true)}>Start</Button>
             </div>
           ) : (
             <LoadingIcon />
@@ -187,7 +186,8 @@ function InteractiveAvatar() {
         </div>
       </div>
       {sessionState === StreamingAvatarSessionState.CONNECTED && (
-        <MessageHistory />
+        // <MessageHistory />
+        <></>
       )}
     </div>
   );
