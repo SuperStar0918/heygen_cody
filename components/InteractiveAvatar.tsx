@@ -30,16 +30,16 @@ let openaiAssistant: OpenAIAssistant | null = null;
 
 
 const DEFAULT_CONFIG: StartAvatarRequest = {
-  quality: AvatarQuality.Low,
+  quality: AvatarQuality.High,
   avatarName: "d888f58da09648bfb520315b93971945",
   knowledgeId: undefined,
   voice: {
     rate: 1.5,
     emotion: VoiceEmotion.EXCITED,
-    model: ElevenLabsModel.eleven_flash_v2_5,
-    // model: ElevenLabsModel.eleven_v3,
+    // model: ElevenLabsModel.eleven_flash_v2_5,
+    model: ElevenLabsModel.eleven_v3, 
   },
-  language: "he",
+  language: "heb",
   // language: "en",
   voiceChatTransport: VoiceChatTransport.WEBSOCKET,
   sttSettings: {
