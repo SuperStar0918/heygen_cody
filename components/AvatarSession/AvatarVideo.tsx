@@ -58,18 +58,18 @@ export const AvatarVideo = forwardRef<HTMLVideoElement, AvatarVideoProps>(
             alt="Advertisement"
              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 object-contain"
             style={{
-              width: "200px",
-              height: "200px",
+              width: "40vh",
+              height: "40vh",
               objectFit: "contain",
             }}
           />
           <img
             src={adImageUrl || "qr.png"}
             alt="Advertisement"
-             className="fixed top-0 left-[calc(50%+115px)] -translate-x-1/2  z-20 object-contain"
+             className="fixed top-0 left-[calc(50%+23vh)] -translate-x-1/2  z-20 object-contain"
             style={{
-              width: "50px",
-              height: "50px",
+              width: "10vh",
+              height: "10vh",
               objectFit: "contain",
             }}
           />
