@@ -39,11 +39,11 @@ const DEFAULT_CONFIG: StartAvatarRequest = {
     model: ElevenLabsModel.eleven_flash_v2_5,
     // model: ElevenLabsModel.eleven_v3, 
   },
-  language: "en",
+  language: "he",
   // language: "en",
   voiceChatTransport: VoiceChatTransport.WEBSOCKET,
   sttSettings: {
-    provider: STTProvider.DEEPGRAM,
+    provider: STTProvider.GLADIA,
   },
 };
 
