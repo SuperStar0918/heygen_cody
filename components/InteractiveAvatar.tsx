@@ -34,13 +34,12 @@ const DEFAULT_CONFIG: StartAvatarRequest = {
   avatarName: "d888f58da09648bfb520315b93971945",
   knowledgeId: undefined,
   voice: {
-    rate: 1.5,
+    voiceId:"8a0a2d7958ba4c85a19802f73e7bec63",
+    rate: 1,
     emotion: VoiceEmotion.EXCITED,
-    model: ElevenLabsModel.eleven_flash_v2_5,
-    // model: ElevenLabsModel.eleven_v3, 
+    model: ElevenLabsModel.eleven_flash_v2_5, 
   },
-  language: "he",
-  // language: "en",
+  language: "he", 
   voiceChatTransport: VoiceChatTransport.WEBSOCKET,
   sttSettings: {
     provider: STTProvider.GLADIA,
